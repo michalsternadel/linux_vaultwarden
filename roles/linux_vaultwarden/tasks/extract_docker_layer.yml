@@ -1,0 +1,47 @@
+- name: Download Layer {{ item | basename }}
+  become: true
+  ansible.builtin.get_url:
+    url: "https://registry-1.docker.io/v2/vaultwarden/server/blobs/{{ item }}"
+    headers:
+      Authorization: "Bearer {{ auth_token }}"
+    dest: "/tmp/{{ item | basename }}.tar"
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: '0644'
+  register: download_result
+
+- name: Attempt to extract web-vault
+  become: true
+  ansible.builtin.command:
+    cmd: "tar -xf {{ download_result.dest }} -C {{ linux_vaultwarden_home_directory }}/tmp web-vault"
+  ignore_errors: true
+  register: extract_web_vault
+  failed_when: extract_web_vault.rc not in [0, 2]
+  changed_when: extract_web_vault.rc == 0
+
+- name: Mark success if web-vault extracted
+  ansible.builtin.set_fact:
+    extract_web_vault_success: true
+  when:
+    - extract_web_vault.rc == 0
+
+- name: Attempt to extract vaultwarden binary
+  become: true
+  ansible.builtin.command:
+    cmd: "tar -xf {{ download_result.dest }} -C {{ linux_vaultwarden_home_directory }}/tmp vaultwarden"
+  ignore_errors: true
+  register: extract_binary
+  failed_when: extract_binary.rc not in [0, 2]
+  changed_when: extract_binary.rc == 0
+
+- name: Mark success if binary extracted
+  ansible.builtin.set_fact:
+    extract_binary_success: true
+  when:
+    - extract_binary.rc == 0
+
+- name: Clean up layer
+  become: true
+  ansible.builtin.file:
+    path: "{{ download_result.dest }}"
+    state: absent

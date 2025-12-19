@@ -1,0 +1,6 @@
+---
+- name: Ensure vaultwarden temp directory does not exist
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/tmp"
+    state: absent

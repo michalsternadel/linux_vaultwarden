@@ -1,0 +1,25 @@
+---
+- name: Common tasks
+  ansible.builtin.include_tasks:
+    file: common.yml
+
+- name: Include dedocker
+  ansible.builtin.include_tasks:
+    file: dedocker.yml
+
+- name: Include ssl configuration if applicable
+  ansible.builtin.include_tasks:
+    file: ssl.yml
+  when: linux_vaultwarden_ssl | bool
+
+- name: Include configure
+  ansible.builtin.include_tasks:
+    file: configure.yml
+
+- name: Include install_service
+  ansible.builtin.include_tasks:
+    file: install_service.yml
+
+- name: Include cleanup
+  ansible.builtin.include_tasks:
+    file: cleanup.yml

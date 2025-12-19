@@ -1,0 +1,6 @@
+---
+- name: Install and configure Vaultwarden
+  hosts: localhost
+  remote_user: root
+  roles:
+    - linux_vaultwarden

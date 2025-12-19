@@ -1,0 +1,32 @@
+---
+- name: Ensure RSA private key exists
+  become: true
+  community.crypto.openssl_privatekey:
+    path: "{{ linux_vaultwarden_config_directory }}/rsa_key.pem"
+    type: RSA
+    size: 4096
+    regenerate: never
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0600"
+  notify: Restart vaultwarden
+
+- name: Ensure Vaultwarden configuration file exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_config_directory }}/vaultwarden.conf"
+    state: touch
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0600"
+
+- name: Ensure Vaultwarden is configured if applicable
+  become: true
+  ansible.builtin.template:
+    src: self/vaultwarden.conf.j2
+    dest: "{{ linux_vaultwarden_config_directory }}/vaultwarden.conf"
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0600"
+  when: linux_vaultwarden_configure
+  notify: Restart vaultwarden

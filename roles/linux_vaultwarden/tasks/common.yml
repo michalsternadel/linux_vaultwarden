@@ -1,0 +1,69 @@
+---
+- name: Ensure required packages are present
+  become: true
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - wget
+      - ssl-cert
+    state: present
+    update_cache: true
+    force_apt_get: true
+
+- name: Ensure vaultwarden user exists
+  become: true
+  ansible.builtin.user:
+    name: "{{ linux_vaultwarden_user }}"
+    state: present
+    system: true
+    shell: /usr/sbin/nologin
+    comment: "Vaultwarden User"
+    groups: "{{ linux_vaultwarden_ssl_user_group | default(omit) }}"
+    create_home: true
+    home: "{{ linux_vaultwarden_home_directory }}"
+
+- name: Ensure vaultwarden home directory exits
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0750"
+
+- name: Ensure vaultwarden config directory exits
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_config_directory }}"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0750"
+
+- name: Ensure vaultwarden data directory exits
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/data"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0750"
+
+- name: Ensure vaultwarden logs directory exits
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_log_directory }}"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0750"
+
+- name: Ensure vaultwarden tmp directory exits
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/tmp"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0750"

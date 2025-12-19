@@ -1,0 +1,25 @@
+[Unit]
+Description=Vaultwarden server
+After=network.target auditd.service
+
+[Service]
+RestartSec=5s
+Type=simple
+User={{ linux_vaultwarden_user }}
+Group={{ linux_vaultwarden_user }}
+EnvironmentFile={{ linux_vaultwarden_config_directory }}/vaultwarden.conf
+WorkingDirectory={{ linux_vaultwarden_home_directory }}
+ExecStart={{ linux_vaultwarden_app_directory }}/vaultwarden
+Restart=always
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadOnlyPaths={{ linux_vaultwarden_home_directory }}/web-vault/ {{ linux_vaultwarden_config_directory }}
+ReadWritePaths={{ linux_vaultwarden_home_directory }}/data/
+LimitNOFILE=1048576
+LimitNPROC=64
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,48 @@
+---
+# defaults file for linux_vaultwarden
+# yamllint disable rule:line-length
+
+linux_vaultwarden_user: vaultwarden
+linux_vaultwarden_ssl_user_group: ssl-cert
+linux_vaultwarden_app_directory: /usr/bin
+linux_vaultwarden_home_directory: /usr/lib/vaultwarden
+linux_vaultwarden_config_directory: /etc/vaultwarden
+linux_vaultwarden_log_directory: /var/log/vaultwarden
+linux_vaultwarden_ssl: true
+linux_vaultwarden_ssl_source: selfsigned # selfsigned/wildcard.example.org (if wildcard.example.org - role wants wildard_example_org_chain and example_org_key variables )
+linux_vaultwarden_wildcard_example_org_chain: ""
+linux_vaultwarden_wildcard_example_org_key: ""
+linux_vaultwarden_ssl_certificate_location: /etc/ssl/certs
+linux_vaultwarden_ssl_certificate_key_location: /etc/ssl/private
+
+## Configuration options
+linux_vaultwarden_configure: true
+linux_vaultwarden_database_url: "{{ linux_vaultwarden_home_directory }}/data/db.sqlite3"
+# linux_vaultwarden_database_url: postgresql://vaultwarden:yourpassword@localhost:5432/vaultwarden
+# linux_vaultwarden_database_url: mysql://vaultwarden:yourpassword@localhost/vaultwarden
+linux_vaultwarden_websocket_enabled: false
+linux_vaultwarden_websocket_address: 0.0.0.0
+linux_vaultwarden_websocket_port: 3012
+linux_vaultwarden_push_enabled: false
+linux_vaultwarden_push_id: CHANGEME
+linux_vaultwarden_push_key: CHANGEME
+linux_vaultwarden_sends_allowed: false
+linux_vaultwarden_signups_allowed: true
+linux_vaultwarden_signups_verify: false
+linux_vaultwarden_invitations_allowed: false
+linux_vaultwarden_invitations_org_name: Snakeoil
+linux_vaultwarden_email_change_allowed: false
+
+linux_vaultwarden_log_level: error
+linux_vaultwarden_admin_token: "" # Generate with Argon2 PHC. If set admin panel is enabled.
+linux_vaultwarden_signups_domains_whitelist:
+  - localhost
+  - localhost.localdomain
+  - localdomain
+linux_vaultwarden_org_creation_users:
+  - admin@localhost.localdomain
+  - admin@localhost
+
+linux_vaultwarden_domain: "{{ ansible_fqdn }}"
+linux_vaultwarden_listen_address: 0.0.0.0
+linux_vaultwarden_listen_port: 8443

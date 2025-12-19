@@ -1,0 +1,90 @@
+---
+- name: Generate self signed certificates if applicable
+  when: linux_vaultwarden_ssl_source == 'selfsigned'
+  block:
+    - name: Install openssl
+      become: true
+      ansible.builtin.apt:
+        name: openssl
+        state: present
+        update_cache: true
+        force_apt_get: true
+
+    - name: Generate Private key
+      become: true
+      community.crypto.openssl_privatekey:
+        path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
+        size: 4096
+        state: present
+      register: private_key
+
+    - name: Adjust permissions of generated private key
+      become: true
+      ansible.builtin.file:
+        path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
+        owner: root
+        group: "{{ linux_vaultwarden_ssl_user_group | default('root') }}"
+        mode: '0640'
+      when: private_key is changed or linux_vaultwarden_ssl_user_group is defined
+
+    - name: Generate CSR
+      become: true
+      community.crypto.openssl_csr:
+        path: "{{ linux_vaultwarden_ssl_certificate_location }}/self-{{ ansible_fqdn }}.csr"
+        privatekey_path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
+        common_name: "localhost"
+        country_name: EN
+        email_address: "root@localhost"
+        organization_name: "Snakeoil Inc"
+        subject_alt_name: "DNS: localhost"
+
+    - name: Generate a self signed certificate
+      become: true
+      community.crypto.x509_certificate:
+        csr_path: "{{ linux_vaultwarden_ssl_certificate_location }}/self-{{ ansible_fqdn }}.csr"
+        path: "{{ linux_vaultwarden_ssl_certificate_location }}/self-{{ ansible_fqdn }}.crt"
+        privatekey_path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
+        provider: selfsigned
+        selfsigned_not_after: 20991231235959Z
+        selfsigned_not_before: 19990101000001Z
+
+- name: Calculate dynamic base variable name
+  ansible.builtin.set_fact:
+    cert_base_name: "linux_vaultwarden_{{ linux_vaultwarden_ssl_source | default('') | regex_replace('\\.', '_') | regex_replace('-', '_') }}"
+  when:
+    linux_vaultwarden_ssl_source is defined and (linux_vaultwarden_ssl_source | default('') | regex_search('^wildcard')) is not none
+
+- name: Copy supplied certificate chain and key if applicable
+  when: >
+    (linux_vaultwarden_ssl_source | default('') | regex_search('^wildcard')) is not none
+    and (
+      (vars[cert_base_name + '_key'] is not none) and
+      (vars[cert_base_name + '_key'] | length > 0)
+    ) and (
+      (vars[cert_base_name + '_chain'] is not none) and
+      (vars[cert_base_name + '_chain'] | length > 0)
+    )
+  block:
+    - name: Copy supplied certificate chain
+      become: true
+      ansible.builtin.copy:
+        content: "{{ vars[cert_base_name + '_chain'] }}"
+        dest: "{{ linux_vaultwarden_ssl_certificate_location }}/{{ linux_vaultwarden_ssl_source }}.crt"
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Copy supplied certificate key
+      become: true
+      ansible.builtin.copy:
+        content: "{{ vars[cert_base_name + '_key'] }}"
+        dest: "{{ linux_vaultwarden_ssl_certificate_key_location }}/{{ linux_vaultwarden_ssl_source }}.key"
+        owner: root
+        group: root
+        mode: "0600"
+
+- name: Generate Diffie-Hellman parameters with the default size (2048 bits)
+  become: true
+  community.crypto.openssl_dhparam:
+    path: /etc/ssl/dhparams.pem
+    size: 2048

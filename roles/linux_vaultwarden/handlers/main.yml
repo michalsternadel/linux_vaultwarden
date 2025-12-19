@@ -1,0 +1,12 @@
+---
+# handlers file for linux_vaultwarden
+- name: Restart vaultwarden
+  become: true
+  ansible.builtin.systemd:
+    name: vaultwarden.service
+    state: restarted
+
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd:
+    daemon_reload: true

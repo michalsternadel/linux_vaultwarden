@@ -1,0 +1,118 @@
+---
+- name: Ensure required packages are present
+  become: true
+  ansible.builtin.apt:
+    name:
+      - libpq5
+      - libmariadb3
+    state: present
+    force_apt_get: true
+
+- name: Set Architecture
+  ansible.builtin.set_fact:
+    arch: "{{ 'arm64' if ansible_facts.architecture == 'aarch64' else 'amd64' }}"
+
+- name: Ensure destination directory exists
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/tmp"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: '0755'
+
+- name: Get Docker Registry Token
+  ansible.builtin.uri:
+    url: "https://auth.docker.io/token?service=registry.docker.io&scope=repository:vaultwarden/server:pull"
+    method: GET
+    return_content: true
+  register: token_response
+
+- name: Set Token Fact
+  ansible.builtin.set_fact:
+    auth_token: "{{ token_response.json.token }}"
+
+- name: Fetch Manifest List
+  ansible.builtin.uri:
+    url: "https://registry-1.docker.io/v2/vaultwarden/server/manifests/latest"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ auth_token }}"
+      Accept: "application/vnd.docker.distribution.manifest.list.v2+json"
+    return_content: true
+  register: manifest_list_response
+
+- name: Select Manifest Digest for {{ arch }}
+  ansible.builtin.set_fact:
+    manifest_digest: "{{ (manifest_list_response.json.manifests | selectattr('platform.architecture', 'equalto', arch) | first).digest }}"
+
+- name: Fetch Image Manifest
+  ansible.builtin.uri:
+    url: "https://registry-1.docker.io/v2/vaultwarden/server/manifests/{{ manifest_digest }}"
+    method: GET
+    headers:
+      Authorization: "Bearer {{ auth_token }}"
+      Accept: "application/vnd.docker.distribution.manifest.v2+json"
+    return_content: true
+  register: manifest_response
+
+- name: Set Layer Digests Fact
+  ansible.builtin.set_fact:
+    layer_digests: "{{ manifest_response.json.layers | map(attribute='digest') | list }}"
+
+- name: Process all layers
+  ansible.builtin.include_tasks: "{{ role_path }}/tasks/extract_docker_layer.yml"
+  loop: "{{ layer_digests }}"
+  loop_control:
+    loop_var: item
+    label: "{{ item | basename }}"
+
+- name: Ensure Vaultwarden binary is owned by Vaultvarden user
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/tmp/vaultwarden"
+    state: file
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0751"
+
+- name: Ensure Vaultwarden web-vault directory is owned by Vaultvarden user
+  become: true
+  ansible.builtin.file:
+    path: "{{ linux_vaultwarden_home_directory }}/tmp/web-vault"
+    state: directory
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    recurse: true
+
+- name: Get Vaultwarden and Web-Vault versions
+  become: true
+  ansible.builtin.command: "{{ linux_vaultwarden_home_directory }}/tmp/vaultwarden --version"
+  register: vaultwarden_version_output
+  changed_when: false
+
+- name: Parse Vaultwarden and Web-Vault versions
+  ansible.builtin.set_fact:
+    vw_version: "{{ vaultwarden_version_output.stdout_lines[0].split()[1] }}"
+    vw_webui_version: "{{ vaultwarden_version_output.stdout_lines[1].split()[2] }}"
+
+- name: Ensure Vaultvarden binary is placed in Vaultwarden app directory
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ linux_vaultwarden_home_directory }}/tmp/vaultwarden"
+    dest: "{{ linux_vaultwarden_app_directory }}"
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0751"
+  notify: Restart vaultwarden
+
+- name: Ensure Vaultvarden Web-UI is placed in Vaultwarden home directory
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ linux_vaultwarden_home_directory }}/tmp/web-vault/"
+    dest: "{{ linux_vaultwarden_home_directory }}/web-vault"
+    owner: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_user }}"
+    mode: "0751"
