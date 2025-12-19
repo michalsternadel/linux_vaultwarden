@@ -76,8 +76,10 @@ None. This role does not require Docker or any other Ansible roles.
   become: true
   roles:
     - role: linux_vaultwarden
+```
 
 ## Example usage
 
-````
+```
 ansible-playbook -i inventory ./site.yml
+```
