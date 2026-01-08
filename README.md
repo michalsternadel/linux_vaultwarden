@@ -16,8 +16,6 @@ While the official Vaultwarden project focuses on Docker, this role provides a c
 * Configures environment via `/etc/vaultwarden/vaultwarden.conf`.
 * Creates and manages a **systemd unit** for automatic startup and logging.
 
-
-
 ## Requirements
 
 * **OS Family**: Debian (Debian 12/13, Ubuntu 22.04/24.04).
@@ -81,5 +79,11 @@ None. This role does not require Docker or any other Ansible roles.
 ## Example usage
 
 ```
-ansible-playbook -i inventory ./site.yml
+ansible-playbook -i inventory ./local.yml
+```
+
+or
+
+```
+sudo ansible-pull -U https://github.com/michalsternadel/linux_vaultvarden.git local.yml
 ```
