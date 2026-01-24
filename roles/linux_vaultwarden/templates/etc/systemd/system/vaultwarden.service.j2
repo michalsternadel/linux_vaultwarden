@@ -17,7 +17,7 @@ ProtectHome=true
 NoNewPrivileges=true
 ProtectSystem=strict
 ReadOnlyPaths={{ linux_vaultwarden_home_directory }}/web-vault/ {{ linux_vaultwarden_config_directory }}
-ReadWritePaths={{ linux_vaultwarden_home_directory }}/data/
+ReadWritePaths={{ linux_vaultwarden_home_directory }}/data/ {{ linux_vaultwarden_log_directory }}/
 LimitNOFILE=1048576
 LimitNPROC=64
 
