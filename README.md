@@ -34,6 +34,7 @@ Settable variables (found in `defaults/main.yml`):
 | `linux_vaultwarden_home_directory`| `/usr/lib/vaultwarden`| Directory for data, Web-Vault. |
 | `linux_vaultwarden_config_directory`| `/etc/vaultwarden`| Directory, where vaultwarden.conf will be stored. |
 | `linux_vaultwarden_log_directory`| `/var/log/vaultwarden`| Directory for logs. |
+| `linux_vaultwarden_logrotate_days`| `60`| Log rotation days. |
 | `linux_vaultwarden_ssl`| `true`| If true Vaultwarden will be configured to use SSL Certificates |
 | `linux_vaultwarden_ssl_source`| `selfsigned` | Could be: selfsigned/wildcard.example.org (if wildcard.example.org - role wants wildard_example_org_chain and example_org_key variables )`|
 | `linux_vaultwarden_wildcard_example_org_chain`| `""`| Only used if linux_vaultwarden_ssl_source is set to wildcard_example_org |
@@ -85,5 +86,17 @@ ansible-playbook -i inventory ./local.yml
 or
 
 ```
-sudo ansible-pull -U https://github.com/michalsternadel/linux_vaultvarden.git local.yml
+cat <<EOF > /tmp/localhost_vars.yml
+linux_vaultwarden_domain: vaultwarden.home.arpa
+linux_vaultwarden_signups_domains_whitelist:
+  - localhost
+  - home.arpa
+linux_vaultwarden_org_creation_users:
+  - admin@home.arpa
+EOF
+
+ansible-pull \
+  -U https://github.com/michalsternadel/linux_vaultwarden.git \
+  -e @/tmp/localhost_vars.yml \
+  local.yml
 ```

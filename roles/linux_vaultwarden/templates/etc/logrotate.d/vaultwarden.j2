@@ -1,0 +1,13 @@
+{{ linux_vaultwarden_log_directory }}/vaultwarden.log {
+        su {{ linux_vaultwarden_user }} {{ linux_vaultwarden_user }}
+        rotate {{ linux_vaultwarden_logrotate_days }}
+        daily
+        missingok
+        copytruncate
+        notifempty
+        compress
+        sharedscripts
+        postrotate
+                invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+        endscript
+}

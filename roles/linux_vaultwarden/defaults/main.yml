@@ -8,6 +8,7 @@ linux_vaultwarden_app_directory: /usr/bin
 linux_vaultwarden_home_directory: /usr/lib/vaultwarden
 linux_vaultwarden_config_directory: /etc/vaultwarden
 linux_vaultwarden_log_directory: /var/log/vaultwarden
+linux_vaultwarden_logrotate_days: 60
 linux_vaultwarden_ssl: true
 linux_vaultwarden_ssl_source: selfsigned # selfsigned/wildcard.example.org (if wildcard.example.org - role wants wildard_example_org_chain and example_org_key variables )
 linux_vaultwarden_wildcard_example_org_chain: ""

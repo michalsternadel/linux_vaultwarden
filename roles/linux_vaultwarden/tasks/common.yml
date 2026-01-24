@@ -67,3 +67,12 @@
     owner: "{{ linux_vaultwarden_user }}"
     group: "{{ linux_vaultwarden_user }}"
     mode: "0750"
+
+- name: Ensure Vaultwarden logrotate is configured
+  become: true
+  ansible.builtin.template:
+    src: etc/logrotate.d/vaultwarden.j2
+    dest: /etc/logrotate.d/vaultwarden
+    owner: root
+    group: root
+    mode: "0640"
