@@ -2,14 +2,11 @@
 - name: Ensure required packages are present
   become: true
   ansible.builtin.apt:
-    name:
-      - curl
-      - git
-      - wget
-      - ssl-cert
+    name: ssl-cert
     state: present
     update_cache: true
     force_apt_get: true
+  when: linux_vaultwarden_ssl | bool
 
 - name: Ensure vaultwarden user exists
   become: true
@@ -19,7 +16,7 @@
     system: true
     shell: /usr/sbin/nologin
     comment: "Vaultwarden User"
-    groups: "{{ linux_vaultwarden_ssl_user_group | default(omit) }}"
+    groups: "{{ linux_vaultwarden_ssl_user_group if (linux_vaultwarden_ssl | default(false) | bool) else omit }}"
     create_home: true
     home: "{{ linux_vaultwarden_home_directory }}"
 
