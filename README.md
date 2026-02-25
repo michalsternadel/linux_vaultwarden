@@ -18,7 +18,7 @@ While the official Vaultwarden project focuses on Docker, this role provides a c
 
 ## Requirements
 
-* **OS Family**: Debian (Debian 12/13, Ubuntu 22.04/24.04).
+* **OS Family**: Debian (Debian 12/13, Ubuntu 22.04/24.04), Alpine Linux.
 * **Architecture**: The role assumes an x86_64 architecture for binary compatibility but should work with arm64 as well.
 * **SSL/TLS**: Vaultwarden **requires** HTTPS for most browser features to work. This role installs the backend service using SSL, but you should rather use a reverse proxy like Nginx, Apache, or Caddy to handle SSL termination.
 
