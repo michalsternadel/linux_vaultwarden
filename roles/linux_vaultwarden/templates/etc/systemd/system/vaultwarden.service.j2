@@ -1,12 +1,12 @@
 [Unit]
 Description=Vaultwarden server
-After=network.target auditd.service
+After=network.target
 
 [Service]
 RestartSec=5s
 Type=simple
 User={{ linux_vaultwarden_user }}
-Group={{ linux_vaultwarden_user }}
+Group={{ linux_vaultwarden_group }}
 EnvironmentFile={{ linux_vaultwarden_config_directory }}/vaultwarden.conf
 WorkingDirectory={{ linux_vaultwarden_home_directory }}
 ExecStart={{ linux_vaultwarden_app_directory }}/vaultwarden
@@ -16,10 +16,21 @@ PrivateDevices=true
 ProtectHome=true
 NoNewPrivileges=true
 ProtectSystem=strict
+DevicePolicy=closed
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+MemoryDenyWriteExecute=yes
+LockPersonality=yes
 ReadOnlyPaths={{ linux_vaultwarden_home_directory }}/web-vault/ {{ linux_vaultwarden_config_directory }}
 ReadWritePaths={{ linux_vaultwarden_home_directory }}/data/ {{ linux_vaultwarden_log_directory }}/
 LimitNOFILE=1048576
 LimitNPROC=64
+{% if linux_vaultwarden_listen_port < 1024 or (linux_vaultwarden_websocket_enabled | bool and linux_vaultwarden_websocket_port < 1024) %}
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+{% endif %}
 
 [Install]
 WantedBy=multi-user.target

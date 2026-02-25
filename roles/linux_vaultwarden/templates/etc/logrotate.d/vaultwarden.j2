@@ -1,5 +1,5 @@
 {{ linux_vaultwarden_log_directory }}/vaultwarden.log {
-        su {{ linux_vaultwarden_user }} {{ linux_vaultwarden_user }}
+        su {{ linux_vaultwarden_user }} {{ linux_vaultwarden_group }}
         rotate {{ linux_vaultwarden_logrotate_days }}
         daily
         missingok

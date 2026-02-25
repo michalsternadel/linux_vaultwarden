@@ -1,0 +1,37 @@
+#!/sbin/openrc-run
+name="Vaultwarden"
+description="Vaultwarden server"
+
+command="{{ linux_vaultwarden_app_directory }}/vaultwarden"
+command_args=""
+command_user="{{ linux_vaultwarden_user }}:{{ linux_vaultwarden_group }}"
+directory="{{ linux_vaultwarden_home_directory }}"
+pidfile="/run/vaultwarden/vaultwarden.pid"
+command_background="yes"
+{% if linux_vaultwarden_listen_port < 1024 or (linux_vaultwarden_websocket_enabled | bool and linux_vaultwarden_websocket_port < 1024) %}
+capabilities=CAP_NET_BIND_SERVICE
+{% endif %}
+retry="TERM/10/KILL/5"
+umask 027
+
+depend() {
+    need net
+}
+start_pre() {
+    checkpath --directory \
+        --owner vaultwarden:vaultwarden \
+        --mode 0750 \
+        /run/vaultwarden
+
+    # ulimit -n 1048576
+    ulimit -u 64
+    chmod 750 /usr/lib/vaultwarden
+
+    if [ -f /etc/vaultwarden/vaultwarden.conf ]; then
+        set -a
+        . /etc/vaultwarden/vaultwarden.conf
+        set +a
+    fi
+}
+
+start_stop_daemon_args="--stdout /dev/null --stderr /dev/null"

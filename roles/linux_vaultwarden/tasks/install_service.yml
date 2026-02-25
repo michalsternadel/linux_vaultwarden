@@ -5,10 +5,10 @@
     dest: "{{ linux_vaultwarden_home_directory }}/data"
     state: directory
     owner: "{{ linux_vaultwarden_user }}"
-    group: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_group }}"
     mode: "0751"
 
-- name: Ensure Vaultwarden systemd unit is present
+- name: Ensure Vaultwarden systemd unit is present if applicable
   become: true
   ansible.builtin.template:
     src: etc/systemd/system/vaultwarden.service.j2
@@ -18,6 +18,32 @@
     mode: "0640"
   register: vaultwarden_service
   notify: Reload systemd
+  when: ansible_os_family == 'Debian'
+
+- name: Ensure Vaultwarden init.d script is present if applicable
+  become: true
+  ansible.builtin.template:
+    src: etc/init.d/vaultwarden.j2
+    dest: /etc/init.d/vaultwarden
+    owner: root
+    group: root
+    mode: "0751"
+  register: vaultwarden_init
+  when: ansible_os_family == 'Alpine'
+
+- name: Enable Vaultwarden service on systemd
+  become: true
+  ansible.builtin.systemd:
+    name: vaultwarden.service
+    enabled: true
+  when: ansible_os_family == 'Debian'
+
+- name: Enable vaultwarden service on OpenRC
+  become: true
+  ansible.builtin.service:
+    name: vaultwarden
+    enabled: true
+  when: ansible_os_family == 'Alpine'
 
 - name: Execute all notified handlers immediately
   ansible.builtin.meta:

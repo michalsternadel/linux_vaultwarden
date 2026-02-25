@@ -2,13 +2,23 @@
 - name: Generate self signed certificates if applicable
   when: linux_vaultwarden_ssl_source == 'selfsigned'
   block:
-    - name: Install openssl
+    - name: Ensure openssl is present (Debian OS Family)
       become: true
       ansible.builtin.apt:
         name: openssl
         state: present
         update_cache: true
         force_apt_get: true
+      when: ansible_os_family == 'Debian'
+
+    - name: Ensure requred packages are present (Alpine OS Family)
+      become: true
+      community.general.apk:
+        name:
+          - openssl
+          - py3-cryptography
+        state: present
+      when: ansible_os_family == 'Alpine'
 
     - name: Generate Private key
       become: true
@@ -23,7 +33,7 @@
       ansible.builtin.file:
         path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
         owner: root
-        group: "{{ linux_vaultwarden_ssl_user_group | default('root') }}"
+        group: "{{ linux_vaultwarden_ssl_user_group if (linux_vaultwarden_ssl | default(false) | bool and ansible_os_family == 'Debian') else linux_vaultwarden_group }}"
         mode: '0640'
       when: private_key is changed or linux_vaultwarden_ssl_user_group is defined
 

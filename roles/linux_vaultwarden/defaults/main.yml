@@ -3,6 +3,7 @@
 # yamllint disable rule:line-length
 
 linux_vaultwarden_user: vaultwarden
+linux_vaultwarden_group: "{{ linux_vaultwarden_user }}"
 linux_vaultwarden_ssl_user_group: ssl-cert
 linux_vaultwarden_app_directory: /usr/bin
 linux_vaultwarden_home_directory: /usr/lib/vaultwarden

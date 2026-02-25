@@ -3,7 +3,7 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://opensource.org/licenses/AGPL-3.0)
 [![Ansible Role](https://img.shields.io/badge/ansible--role-linux--vaultwarden-orange)](https://galaxy.ansible.com/)
 
-An Ansible role that installs and configures **Vaultwarden** (formerly Bitwarden_RS) as a native systemd service using the compiled binary extracted from Official Docker images. This role is designed specifically for **non-containerized** deployments on Debian-family Linux distributions (Debian, Ubuntu).
+An Ansible role that installs and configures **Vaultwarden** (formerly Bitwarden_RS) as a native systemd service using the compiled binary extracted from Official Docker images. This role is designed specifically for **non-containerized** deployments on Debian-family Linux distributions (Debian, Ubuntu) and Alpine Linux.
 
 ## Description
 
@@ -29,6 +29,7 @@ Settable variables (found in `defaults/main.yml`):
 | Variable | Default Value | Description |
 | :--- | :--- | :--- |
 | `linux_vaultwarden_user`| `vaultwarden`| System user running the service. |
+| `linux_vaultwarden_group`| `vaultwarden`| Group for system user running the service. |
 | `linux_vaultwarden_ssl_user_group`| `ssl-cert`| Additional group or proper SSL key permissions. |
 | `linux_vaultwarden_app_directory`| `/usr/bin`| Directory, where vaultvarden binary will be installed. |
 | `linux_vaultwarden_home_directory`| `/usr/lib/vaultwarden`| Directory for data, Web-Vault. |

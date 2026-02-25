@@ -2,11 +2,12 @@
 # handlers file for linux_vaultwarden
 - name: Restart vaultwarden
   become: true
-  ansible.builtin.systemd:
-    name: vaultwarden.service
+  ansible.builtin.service:
+    name: vaultwarden
     state: restarted
 
 - name: Reload systemd
   become: true
   ansible.builtin.systemd:
     daemon_reload: true
+  when: ansible_os_family == 'Debian'

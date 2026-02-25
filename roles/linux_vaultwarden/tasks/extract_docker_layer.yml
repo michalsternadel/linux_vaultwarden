@@ -6,7 +6,7 @@
       Authorization: "Bearer {{ auth_token }}"
     dest: "/tmp/{{ item | basename }}.tar"
     owner: "{{ linux_vaultwarden_user }}"
-    group: "{{ linux_vaultwarden_user }}"
+    group: "{{ linux_vaultwarden_group }}"
     mode: '0644'
   register: download_result
 
