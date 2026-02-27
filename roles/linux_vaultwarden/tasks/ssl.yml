@@ -24,7 +24,7 @@
       become: true
       community.crypto.openssl_privatekey:
         path: "{{ linux_vaultwarden_ssl_certificate_key_location }}/self-{{ ansible_fqdn }}.key"
-        size: 4096
+        size: "{{ linux_vaultwarden_ssl_certificate_key_size | default('4096') }}"
         state: present
       register: private_key
 
@@ -96,5 +96,5 @@
 - name: Generate Diffie-Hellman parameters with the default size (2048 bits)
   become: true
   community.crypto.openssl_dhparam:
-    path: /etc/ssl/dhparams.pem
-    size: 2048
+    path: "{{ linux_vaultwarden_ssl_dhaparam_file }}"
+    size: "{{ linux_vaultwarden_ssl_dhaparam_size | default('2048') }}"

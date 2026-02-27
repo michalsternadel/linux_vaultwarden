@@ -16,9 +16,13 @@ linux_vaultwarden_wildcard_example_org_chain: ""
 linux_vaultwarden_wildcard_example_org_key: ""
 linux_vaultwarden_ssl_certificate_location: /etc/ssl/certs
 linux_vaultwarden_ssl_certificate_key_location: /etc/ssl/private
+linux_vaultwarden_ssl_certificate_key_size: 4096
+linux_vaultwarden_ssl_dhaparam_file: /etc/ssl/dhparams.pem
+linux_vaultwarden_ssl_dhaparam_size: 4096
 
 ## Configuration options
 linux_vaultwarden_configure: true
+linux_vaultwarden_rsa_key_size: 4096
 linux_vaultwarden_database_url: "{{ linux_vaultwarden_home_directory }}/data/db.sqlite3"
 # linux_vaultwarden_database_url: postgresql://vaultwarden:yourpassword@localhost:5432/vaultwarden
 # linux_vaultwarden_database_url: mysql://vaultwarden:yourpassword@localhost/vaultwarden

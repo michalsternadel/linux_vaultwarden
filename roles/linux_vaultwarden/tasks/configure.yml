@@ -4,7 +4,7 @@
   community.crypto.openssl_privatekey:
     path: "{{ linux_vaultwarden_config_directory }}/rsa_key.pem"
     type: RSA
-    size: 4096
+    size: "{{ linux_vaultwarden_rsa_key_size | default('4096') }}"
     regenerate: never
     owner: "{{ linux_vaultwarden_user }}"
     group: "{{ linux_vaultwarden_group }}"

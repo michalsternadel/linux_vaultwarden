@@ -42,6 +42,9 @@ Settable variables (found in `defaults/main.yml`):
 | `linux_vaultwarden_wildcard_example_org_key`| `""`| Only used if linux_vaultwarden_ssl_source is set to wildcard_example_org |
 | `linux_vaultwarden_ssl_certificate_location`| `/etc/ssl/certs`| Location to store certificate. |
 | `linux_vaultwarden_ssl_certificate_key_location`| `/etc/ssl/private`| Location to store certificate key. |
+| `linux_vaultwarden_ssl_certificate_key_size`| `4096`| Size of selfsigned certificate key. |
+| `linux_vaultwarden_ssl_dhaparam_file`| `/etc/ssl/dhparams.pem`| DHParams file. |
+| `linux_vaultwarden_ssl_dhaparam_size`| `4096`| Size of DHParams. |
 | `linux_vaultwarden_configure`| `true`| Flag to configure Vaultwarden. If set to true - vaultwarden.conf will be replaced. |
 | `linux_vaultwarden_database_url`| `"{{ linux_vaultwarden_home_directory }}/data/db.sqlite3"`| Could also be  `postgresql://vaultwarden:yourpassword@localhost:5432/vaultwarden` or `mysql://vaultwarden:yourpassword@localhost/vaultwarden` |
 | `linux_vaultwarden_websocket_enabled`| `false`| Should websocket be enabled? |
